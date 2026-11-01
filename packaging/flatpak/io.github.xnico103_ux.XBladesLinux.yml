@@ -1,0 +1,41 @@
+app-id: io.github.xnico103_ux.XBladesLinux
+runtime: org.freedesktop.Platform
+runtime-version: '24.08'
+sdk: org.freedesktop.Sdk
+sdk-extensions:
+  - org.freedesktop.Sdk.Extension.rust-stable
+command: xblades-gui
+finish-args:
+  - --socket=wayland
+  - --socket=fallback-x11
+  - --share=ipc
+  - --device=dri
+  # Accès au nœud /dev/hidraw* de la souris (Flatpak n'a pas de permission plus fine pour hidraw).
+  - --device=all
+  # Aucun accès réseau, aucun accès au dossier personnel.
+build-options:
+  append-path: /usr/lib/sdk/rust-stable/bin
+  env:
+    CARGO_HOME: /run/build/xblades/cargo
+modules:
+  - name: xblades
+    buildsystem: simple
+    build-commands:
+      - cargo --offline fetch --manifest-path Cargo.toml --verbose
+      - cargo --offline build --release --locked -p xblades-gui -p xblades-cli
+      - install -Dm755 target/release/xblades-gui /app/bin/xblades-gui
+      - install -Dm755 target/release/xblades /app/bin/xblades
+      - install -Dm644 packaging/flatpak/io.github.xnico103_ux.XBladesLinux.desktop /app/share/applications/io.github.xnico103_ux.XBladesLinux.desktop
+      - install -Dm644 packaging/flatpak/io.github.xnico103_ux.XBladesLinux.metainfo.xml /app/share/metainfo/io.github.xnico103_ux.XBladesLinux.metainfo.xml
+      - install -Dm644 packaging/flatpak/io.github.xnico103_ux.XBladesLinux.png /app/share/icons/hicolor/256x256/apps/io.github.xnico103_ux.XBladesLinux.png
+      - install -Dm644 packaging/70-xblades.rules /app/share/xblades/70-xblades.rules
+    sources:
+      # Test local : le dossier du projet.
+      - type: dir
+        path: ../..
+        skip: [target, packaging/AppDir]
+      # Pour Flathub : remplace le bloc dir ci-dessus par une archive/tag git publique, par ex. :
+      # - type: git
+      #   url: https://github.com/xnico103-ux/xblades4linux.git
+      #   tag: v0.1.0
+      - cargo-sources.json

@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=XBlades Linux
+Comment=Configure la souris EMPIRE GAMING X-Blades
+Exec=xblades-gui
+Icon=io.github.xnico103_ux.XBladesLinux
+Categories=Settings;HardwareSettings;
+Keywords=mouse;souris;dpi;rgb;

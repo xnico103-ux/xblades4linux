@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>io.github.xnico103_ux.XBladesLinux</id>
+  <name>XBlades Linux</name>
+  <summary>Configure la souris EMPIRE GAMING X-Blades</summary>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>GPL-3.0-or-later</project_license>
+  <description>
+    <p>Outil natif pour régler la souris EMPIRE GAMING X-Blades (USB 1bcf:08b8) : éclairage, DPI, boutons et profils. Sans Wine, sans service permanent, entièrement hors ligne.</p>
+    <p>Avertissement : outil non officiel qui écrit dans la mémoire de la souris, fourni sans garantie.</p>
+    <p>Une règle udev doit être installée une fois sur le système pour autoriser l'accès à la souris.</p>
+  </description>
+  <launchable type="desktop-id">io.github.xnico103_ux.XBladesLinux.desktop</launchable>
+  <provides><modalias>usb:v1BCFp08B8d*</modalias></provides>
+  <categories><category>Settings</category><category>HardwareSettings</category></categories>
+  <url type="homepage">https://github.com/xnico103-ux/xblades4linux</url>
+  <url type="bugtracker">https://github.com/xnico103-ux/xblades4linux/issues</url>
+  <content_rating type="oars-1.1"/>
+  <releases>
+    <release version="0.1.0" date="2026-11-01"/>
+  </releases>
+</component>

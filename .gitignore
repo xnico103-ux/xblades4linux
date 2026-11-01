@@ -1,0 +1,7 @@
+target/
+packaging/AppDir/
+*.AppImage
+*.bin.bak
+avant-restauration.bin
+.flatpak-builder/
+build/
