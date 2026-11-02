@@ -37,5 +37,5 @@ modules:
       # Pour Flathub : remplace le bloc dir ci-dessus par une archive/tag git publique, par ex. :
       # - type: git
       #   url: https://github.com/xnico103-ux/xblades4linux.git
-      #   tag: v0.1.0
+      #   tag: v0.1
       - cargo-sources.json
