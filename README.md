@@ -40,6 +40,8 @@ packaging/build-appimage.sh         # AppImage (nécessite appimagetool)
 
 ## Modèles compatibles
 
+**Testé sur : SPCP6651B** (Sunplus), USB `1bcf:08b8`, en-tête de configuration `af1f7f4f`.
+
 Seule la puce **SPCP6651B** a été étudiée (c'est celle de la souris de l'auteur). Le logiciel d'origine gère aussi une SPCP6653B, qui a le même ID USB `1bcf:08b8` mais une mémoire différente. Le programme lit la version renvoyée par la souris : si elle indique une 6653B, il passe en **lecture seule** et refuse toute écriture. Si votre modèle est dans ce cas, ouvrez une issue avec la sortie de `xblades info` et de `lsusb -v -d 1bcf:08b8`.
 
 ## Désinstaller
