@@ -86,7 +86,7 @@ Checksums : 0xA3 = somme(0x00..0xA2)^0x5A ; 0xBF = somme(0xA4..0xBE)^0x5A ; base
 
 ## bouton « Default » du logiciel d'origine (Btn_DefaultClick 0x57f7e8 -> 0x5a3bb8)
 - Il copie la ressource d'usine (0x800 octets, `SPCP6651BDATA_CFGn`) dans le tampon PC, rafraîchit l'interface, puis appelle `FUN_005c3470(0, 0x800, tampon, 0x7ff)` = **écriture de bloc 0x07 (paquets de 7 octets)**. Aucune commande de « reset » dédiée n'existe : « défaut » = réécrire l'image d'usine, comme notre fonction Restauration.
-- L'exe contient aussi des ressources `SPCP6653BDATA_CFG1..3` (autre puce, non utilisées ici).
+- L'exe contient aussi des ressources `SPCP6653BDATA_CFG1..3` (autre puce, non utilisées ici ; le logiciel d'origine la distingue par la version renvoyée par HELLO (`d0` < 0x40 → 6653B, mémoire de 0x600 octets au lieu de 0x710 pour la 6651B), pas par l'ID USB. Ce projet refuse toute écriture si `d0` < 0x40).
 - Le logiciel d'origine ne fait aucun chemin de récupération pour une souris qui ne s'énumère plus : tout passe par le canal HID.
 
 ## cb_ProfileChange (0x57cd98) : c'est l'éclairage, pas les boutons

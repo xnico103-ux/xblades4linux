@@ -54,6 +54,18 @@ mod tests {
     fn dev() -> Device<Sim> { Device::connect(Sim::from_image(DUMP.to_vec())).unwrap() }
 
     #[test]
+    fn spcp6653b_is_read_only() {
+        let mut d = dev();
+        assert_eq!(d.chip(), crate::Chip::Spcp6651b);
+        d.firmware = 0x20; // version < 0x40 : SPCP6653B
+        assert_eq!(d.chip(), crate::Chip::Spcp6653b);
+        assert!(d.read_mem(0, 16).is_ok());
+        assert!(matches!(d.write_bytes(0x38, &[1]), Err(crate::Error::Refused(_))));
+        assert!(matches!(d.write_image(DUMP), Err(crate::Error::Refused(_))));
+        assert!(matches!(d.reload(), Err(crate::Error::Refused(_))));
+    }
+
+    #[test]
     fn real_dump_decodes() {
         let c = Config::from_mem(DUMP).unwrap();
         assert!(c.checksum_ok);

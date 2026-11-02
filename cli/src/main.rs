@@ -33,7 +33,7 @@ fn run<T: Transport>(mut d: Device<T>, node: &str, a: &[String], apply: bool, ba
     let old = d.read_config()?;
     let mut new = old.clone();
     match a[0].as_str() {
-        "info" => println!("nœud {node}, firmware 0x{:02x}, produit « {} »", d.firmware, old.product),
+        "info" => println!("nœud {node}, puce {:?}, firmware 0x{:02x}, produit « {} »", d.chip(), d.firmware, old.product),
         "status" => {
             println!("checksum {} | effet {} | {} Hz | niveau actif {}/{}", if old.checksum_ok { "ok" } else { "INVALIDE" }, effect_name(old.effect), old.polling, old.current_gear + 1, old.gear_count);
             for g in 0..old.gear_count as usize { println!("  niveau {}: palier {} (~{} DPI) couleur {:02x?}", g + 1, old.steps[g], old.dpi(g), old.gear_colors[g]); }

@@ -27,6 +27,10 @@ pub const MEM_SIZE: usize = 0x800;
 /// Image d'usine SPCP6651B (ressource SPCP6651BDATA_CFG1 du logiciel d'origine ; CFG1, 2 et 3 sont identiques).
 pub const FACTORY_IMAGE: &[u8] = include_bytes!("../data/factory-6651b.bin");
 
+/// Famille de puce Sunplus, même identifiant USB 1bcf:08b8 pour les deux.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Chip { Spcp6651b, Spcp6653b }
+
 #[derive(Debug)]
 pub enum Error {
     Io(io::Error),
@@ -88,6 +92,16 @@ impl<T: Transport> Device<T> {
         Ok(d)
     }
 
+    /// Puce détectée d'après la version renvoyée par HELLO (même règle que le logiciel d'origine :
+    /// d0 >= 0x40 → SPCP6651B, d0 < 0x40 → SPCP6653B, dont la carte mémoire est différente).
+    pub fn chip(&self) -> Chip { if self.firmware >= 0x40 { Chip::Spcp6651b } else { Chip::Spcp6653b } }
+
+    /// Garde-fou : toute écriture est refusée sur une puce autre que la SPCP6651B (seule étudiée).
+    fn ensure_6651b(&self) -> Result<(), Error> {
+        if self.chip() == Chip::Spcp6651b { Ok(()) }
+        else { Err(Error::Refused("puce SPCP6653B détectée : seule la SPCP6651B est prise en charge (lecture seule)")) }
+    }
+
     fn send(&mut self, cmd: u8, p: [u8; 6]) -> io::Result<()> {
         let pkt = [CMD_ID, cmd, p[0], p[1], p[2], p[3], p[4], p[5]];
         self.log.push(format!("SET {pkt:02x?}"));
@@ -123,6 +137,7 @@ impl<T: Transport> Device<T> {
     /// Écriture brute de 1 à 3 octets (liste blanche) ; pas de relecture ici.
     pub fn write_bytes(&mut self, addr: u16, data: &[u8]) -> Result<(), Error> {
         if data.is_empty() || data.len() > 3 { return Err(Error::Refused("1 à 3 octets par paquet")); }
+        self.ensure_6651b()?;
         regs::check_writable(addr, data.len())?;
         let mut p = [(addr >> 8) as u8, addr as u8, 0, 0, 0, data.len() as u8];
         p[2..2 + data.len()].copy_from_slice(data);
@@ -145,6 +160,7 @@ impl<T: Transport> Device<T> {
         if img.len() != MEM_SIZE { return Err(Error::Refused("l'image doit faire 0x800 octets")); }
         if img[..4] != [0x1b, 0xcf, 0x08, 0xb8] { return Err(Error::Refused("VID/PID de l'image inattendus")); }
         if !regs::image_checksums_ok(img) { return Err(Error::Refused("checksums de l'image invalides")); }
+        self.ensure_6651b()?;
         self.send(CMD_BLOCK_WRITE, [0, 0, (MEM_SIZE >> 8) as u8, MEM_SIZE as u8, 0, 0])?;
         for chunk in img.chunks(7) {
             let mut pkt = [0xffu8; REPORT_LEN]; // dernier paquet complété par 0xFF, comme l'original
@@ -167,6 +183,7 @@ impl<T: Transport> Device<T> {
 
     /// Commande 0x0E : recharge le firmware, la souris se reconnecte.
     pub fn reload(&mut self) -> Result<(), Error> {
+        self.ensure_6651b()?;
         self.send(CMD_RELOAD, [0; 6])?;
         std::thread::sleep(Duration::from_millis(500));
         Ok(())
